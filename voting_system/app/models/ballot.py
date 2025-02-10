@@ -16,3 +16,15 @@ class Ballot(db.Model):
     def is_ongoing(self):
         now = datetime.utcnow()
         return self.start_date <= now <= self.end_date and self.is_active
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'start_date': self.start_date.isoformat(),
+            'end_date': self.end_date.isoformat(),
+            'is_active': self.is_active,
+            'is_ongoing': self.is_ongoing,
+            'candidates': [c.to_dict() for c in self.candidates]
+        }
