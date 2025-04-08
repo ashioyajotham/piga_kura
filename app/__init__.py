@@ -26,14 +26,20 @@ def create_app(config_class=Config):
     login_manager.login_message_category = 'info'
     
     # Register blueprints
-    from app.api.auth import auth_bp
+    from app.api.auth import auth_bp as auth_api_bp
     from app.api.voter import voter_bp
     from app.api.admin import admin_bp
     from app.routes.main import main_bp
+    from app.routes.auth import auth_bp
     
-    app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(auth_api_bp, url_prefix='/api/auth')
     app.register_blueprint(voter_bp, url_prefix='/api/voter')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
     app.register_blueprint(main_bp)
+    app.register_blueprint(auth_bp, url_prefix='/auth')
+    
+    # Register CLI commands
+    from app import cli
+    cli.init_app(app)
     
     return app
