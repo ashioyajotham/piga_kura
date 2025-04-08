@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Piga Kura - Secure Electronic Voting{% endblock %}
+
+{% block content %}
+<div class="landing-container">
+    <div class="hero-section text-center py-5">
+        <h1 class="display-4">Secure Electronic Voting</h1>
+        <p class="lead">Piga Kura provides a secure, transparent, and accessible voting platform</p>
+        <div class="mt-4">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg mx-2">Login</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary btn-lg mx-2">Register</a>
+        </div>
+    </div>
+    
+    <div class="features-section py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Key Features</h2>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h3 class="card-title">Secure</h3>
+                            <p class="card-text">End-to-end encryption and tamper-proof voting records ensure the integrity of every vote.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h3 class="card-title">Transparent</h3>
+                            <p class="card-text">Verify your vote with a unique receipt and audit trail for complete transparency.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h3 class="card-title">Accessible</h3>
+                            <p class="card-text">Vote from anywhere securely with our easy-to-use interface.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

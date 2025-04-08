@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Piga Kura - Home{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">Welcome to Piga Kura</h2>
+                    <p class="card-text">Your secure electronic voting platform</p>
+                    
+                    <div class="stats-container mt-4">
+                        <div class="row text-center">
+                            <div class="col-md-4">
+                                <div class="stat-card">
+                                    <h3>{{ active_ballots_count }}</h3>
+                                    <p>Active Elections</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h3>Current Elections</h3>
+                    <a href="{{ url_for('voter.active_ballots') }}" class="btn btn-primary">View Active Elections</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h3>My Votes</h3>
+                    <a href="{{ url_for('voter.my_votes') }}" class="btn btn-primary">View My Voting History</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
