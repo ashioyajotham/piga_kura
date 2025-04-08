@@ -30,13 +30,13 @@ def create_app(config_class=Config):
     from app.api.voter import voter_bp
     from app.api.admin import admin_bp
     from app.routes.main import main_bp
-    from app.routes.auth import auth_bp
+    from app.routes.auth import auth_bp as auth_web_bp
     
-    app.register_blueprint(auth_api_bp, url_prefix='/api/auth')
+    app.register_blueprint(auth_api_bp, url_prefix='/api/auth', name='auth_api')
     app.register_blueprint(voter_bp, url_prefix='/api/voter')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
     app.register_blueprint(main_bp)
-    app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(auth_web_bp, url_prefix='/auth')
     
     # Register CLI commands
     from app import cli
