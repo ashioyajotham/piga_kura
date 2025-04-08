@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Active Elections - Piga Kura{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Active Elections</h1>
+    
+    {% if ballots %}
+        <div class="row">
+            {% for ballot in ballots %}
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h2 class="card-title">{{ ballot.title }}</h2>
+                        <p class="card-text">{{ ballot.description }}</p>
+                        <p><strong>Ends:</strong> {{ ballot.end_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                        <a href="{{ url_for('voter.view_ballot', ballot_id=ballot.id) }}" class="btn btn-primary">Vote Now</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            There are no active elections at this time. Please check back later.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

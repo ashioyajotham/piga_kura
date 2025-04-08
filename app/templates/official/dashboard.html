@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Election Management - Piga Kura{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Election Management</h1>
+        <a href="{{ url_for('official.create_ballot') }}" class="btn btn-primary">Create New Ballot</a>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            Manage Ballots
+        </div>
+        <div class="card-body">
+            {% if ballots %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ballot in ballots %}
+                        <tr>
+                            <td>{{ ballot.title }}</td>
+                            <td>{{ ballot.ballot_type }}</td>
+                            <td>
+                                {% if ballot.is_ongoing %}
+                                <span class="badge bg-success">Active</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ ballot.start_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ ballot.end_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <a href="#" class="btn btn-sm btn-primary">Edit</a>
+                                <a href="#" class="btn btn-sm btn-info">Candidates</a>
+                                <a href="#" class="btn btn-sm btn-success">Results</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p>No ballots created yet. Click "Create New Ballot" to get started.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

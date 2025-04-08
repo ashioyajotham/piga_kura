@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Vote Successful - Piga Kura{% endblock %}
+
+{% block content %}
+<div class="container text-center">
+    <div class="card shadow">
+        <div class="card-body">
+            <h1 class="text-success mb-4"><i class="bi bi-check-circle"></i> Vote Cast Successfully!</h1>
+            
+            <div class="alert alert-info mb-4">
+                <p class="mb-1"><strong>Vote ID:</strong> {{ vote.id }}</p>
+                <p class="mb-0"><strong>Election:</strong> {{ vote.ballot.title }}</p>
+            </div>
+            
+            <div class="mb-4">
+                <h4>Your Vote Receipt</h4>
+                <p class="small mb-1">Keep this receipt to verify your vote later</p>
+                <div class="p-3 bg-light rounded mb-2">
+                    <code class="receipt-code">{{ vote.encrypted_vote }}</code>
+                </div>
+                <button id="copy-receipt" class="btn btn-secondary btn-sm">Copy Receipt</button>
+            </div>
+            
+            <div class="mt-4">
+                <a href="{{ url_for('voter.active_ballots') }}" class="btn btn-primary">View More Elections</a>
+                <a href="{{ url_for('main.verify_vote') }}" class="btn btn-outline-primary ms-2">Verify This Vote</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const copyButton = document.getElementById('copy-receipt');
+    const receipt = document.querySelector('.receipt-code').textContent;
+    
+    copyButton.addEventListener('click', function() {
+        navigator.clipboard.writeText(receipt)
+            .then(() => {
+                copyButton.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyButton.textContent = 'Copy Receipt';
+                }, 2000);
+            })
+            .catch(err => {
+                console.error('Could not copy receipt: ', err);
+            });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

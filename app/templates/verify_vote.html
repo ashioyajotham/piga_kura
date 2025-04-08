@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Verify Your Vote - Piga Kura{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Verify Your Vote</h2>
+                <p class="text-center">Enter your vote ID and receipt to verify that your vote has been properly recorded.</p>
+                
+                <form method="POST" action="{{ url_for('main.check_vote') }}">
+                    <div class="mb-3">
+                        <label for="vote_id" class="form-label">Vote ID</label>
+                        <input type="text" class="form-control" id="vote_id" name="vote_id" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="receipt" class="form-label">Vote Receipt</label>
+                        <input type="text" class="form-control" id="receipt" name="receipt" required>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Verify Vote</button>
+                    </div>
+                </form>
+                
+                <div class="text-center mt-4">
+                    <p>Note: Vote IDs and receipts are provided to you after you cast a vote.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

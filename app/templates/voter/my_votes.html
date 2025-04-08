@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}My Votes - Piga Kura{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">My Voting History</h1>
+    
+    {% if votes %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Vote ID</th>
+                        <th>Ballot</th>
+                        <th>Date</th>
+                        <th>Receipt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vote in votes %}
+                    <tr>
+                        <td>{{ vote.id }}</td>
+                        <td>{{ vote.ballot.title }}</td>
+                        <td>{{ vote.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-secondary copy-receipt" 
+                                    data-receipt="{{ vote.encrypted_vote }}" 
+                                    title="Copy receipt">Copy Receipt</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            You have not cast any votes yet.
+        </div>
+    {% endif %}
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const copyButtons = document.querySelectorAll('.copy-receipt');
+    
+    copyButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const receipt = this.getAttribute('data-receipt');
+            navigator.clipboard.writeText(receipt)
+                .then(() => {
+                    this.textContent = 'Copied!';
+                    setTimeout(() => {
+                        this.textContent = 'Copy Receipt';
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Could not copy receipt: ', err);
+                });
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

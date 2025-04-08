@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Piga Kura{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Admin Dashboard</h1>
+    
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h2 class="display-4">{{ user_count }}</h2>
+                    <p class="lead">Registered Users</p>
+                    <a href="{{ url_for('admin.users') }}" class="btn btn-primary">Manage Users</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h2 class="display-4">{{ ballots|length }}</h2>
+                    <p class="lead">Total Ballots</p>
+                    <a href="{{ url_for('admin.ballots') }}" class="btn btn-primary">Manage Ballots</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h2 class="display-4">{{ vote_count }}</h2>
+                    <p class="lead">Total Votes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            Recent Ballots
+        </div>
+        <div class="card-body">
+            {% if ballots %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Status</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ballot in ballots %}
+                        <tr>
+                            <td>{{ ballot.title }}</td>
+                            <td>
+                                {% if ballot.is_ongoing %}
+                                <span class="badge bg-success">Active</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ ballot.start_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ ballot.end_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <a href="#" class="btn btn-sm btn-primary">View</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p>No ballots created yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
