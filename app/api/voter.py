@@ -14,7 +14,11 @@ def cast_vote():
             ballot_id=data['ballot_id'],
             candidate_id=data['candidate_id']
         )
-        return jsonify({'message': 'Vote cast successfully', 'receipt': vote.encrypted_vote}), 201
+        return jsonify({
+            'message': 'Vote cast successfully', 
+            'receipt': vote.encrypted_vote,
+            'vote_id': vote.id
+        }), 201
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
     except Exception as e:
