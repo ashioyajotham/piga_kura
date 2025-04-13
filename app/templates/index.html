@@ -7,9 +7,27 @@
     <div class="row mb-4">
         <div class="col-lg-12">
             <div class="card">
+                <div class="card-header bg-{{ 'danger' if user_role == 'admin' else 'success' if user_role == 'official' else 'primary' }}">
+                    <h2 class="card-title text-white mb-0">
+                        {% if user_role == 'admin' %}
+                            Administrator Dashboard
+                        {% elif user_role == 'official' %}
+                            Election Official Dashboard
+                        {% else %}
+                            Voter Dashboard
+                        {% endif %}
+                    </h2>
+                </div>
                 <div class="card-body">
-                    <h2 class="card-title">Welcome to Piga Kura</h2>
-                    <p class="card-text">Your secure electronic voting platform</p>
+                    <p class="card-text">
+                        {% if user_role == 'admin' %}
+                            Manage system settings, users, and monitor all elections
+                        {% elif user_role == 'official' %}
+                            Create and manage elections and candidates
+                        {% else %}
+                            Your secure electronic voting platform
+                        {% endif %}
+                    </p>
                     
                     <div class="stats-container mt-4">
                         <div class="row text-center">
@@ -19,6 +37,20 @@
                                     <p>Active Elections</p>
                                 </div>
                             </div>
+                            {% if user_role == 'admin' %}
+                            <div class="col-md-4">
+                                <div class="stat-card">
+                                    <h3>{{ user_count if user_count is defined else '--' }}</h3>
+                                    <p>Registered Users</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-card">
+                                    <h3>{{ vote_count if vote_count is defined else '--' }}</h3>
+                                    <p>Total Votes</p>
+                                </div>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -35,6 +67,28 @@
                 </div>
             </div>
         </div>
+
+        {% if user_role == 'admin' %}
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h3>Admin Controls</h3>
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-danger">Admin Panel</a>
+                    <a href="{{ url_for('admin.users') }}" class="btn btn-outline-danger ms-2">Manage Users</a>
+                </div>
+            </div>
+        </div>
+        {% elif user_role == 'official' %}
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h3>Election Management</h3>
+                    <a href="{{ url_for('official.dashboard') }}" class="btn btn-success">Manage Elections</a>
+                    <a href="{{ url_for('official.create_ballot') }}" class="btn btn-outline-success ms-2">Create New Election</a>
+                </div>
+            </div>
+        </div>
+        {% else %}
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-body">
@@ -43,6 +97,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

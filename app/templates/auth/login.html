@@ -6,10 +6,30 @@
 <div class="row justify-content-center">
     <div class="col-md-6 col-lg-5">
         <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                {% if request.args.get('role') == 'admin' %}
+                    <h2 class="text-center mb-0">Admin Login</h2>
+                {% elif request.args.get('role') == 'official' %}
+                    <h2 class="text-center mb-0">Election Official Login</h2>
+                {% else %}
+                    <h2 class="text-center mb-0">Voter Login</h2>
+                {% endif %}
+            </div>
             <div class="card-body">
-                <h2 class="card-title text-center mb-4">Login</h2>
+                {% if request.args.get('role') %}
+                <div class="alert alert-info">
+                    {% if request.args.get('role') == 'admin' %}
+                        You are logging in as an <strong>Administrator</strong>. Administrators have full control over the system.
+                    {% elif request.args.get('role') == 'official' %}
+                        You are logging in as an <strong>Election Official</strong>. Officials can manage elections and candidates.
+                    {% else %}
+                        You are logging in as a <strong>Voter</strong>. Voters can participate in active elections.
+                    {% endif %}
+                </div>
+                {% endif %}
                 
                 <form method="POST">
+                    <input type="hidden" name="role" value="{{ request.args.get('role', 'voter') }}">
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
                         <input type="email" class="form-control" id="email" name="email" required>
@@ -24,7 +44,12 @@
                 </form>
                 
                 <div class="text-center mt-3">
-                    <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Register here</a></p>
+                    <p>Don't have an account? <a href="{{ url_for('auth.register', role=request.args.get('role', 'voter')) }}">Register here</a></p>
+                    <p class="mt-2">Or login as: 
+                        <a href="{{ url_for('auth.login', role='voter') }}" class="badge bg-primary">Voter</a> |
+                        <a href="{{ url_for('auth.login', role='official') }}" class="badge bg-success">Official</a> |
+                        <a href="{{ url_for('auth.login', role='admin') }}" class="badge bg-danger">Admin</a>
+                    </p>
                 </div>
             </div>
         </div>
