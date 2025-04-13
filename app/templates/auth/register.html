@@ -6,16 +6,34 @@
 <div class="row justify-content-center">
     <div class="col-md-6 col-lg-5">
         <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                {% if request.args.get('role') == 'official' %}
+                    <h2 class="text-center mb-0">Election Official Registration</h2>
+                {% else %}
+                    <h2 class="text-center mb-0">Voter Registration</h2>
+                {% endif %}
+            </div>
             <div class="card-body">
-                <h2 class="card-title text-center mb-4">Register</h2>
+                {% if request.args.get('role') %}
+                <div class="alert alert-info">
+                    {% if request.args.get('role') == 'official' %}
+                        You are registering as an <strong>Election Official</strong>. Your account will need approval.
+                    {% else %}
+                        You are registering as a <strong>Voter</strong>.
+                    {% endif %}
+                </div>
+                {% endif %}
                 
                 <form method="POST">
+                    <input type="hidden" name="role" value="{{ request.args.get('role', 'voter') }}">
                     <div class="mb-3">
                         <label for="email" class="form-label">Email (@kabarak.ac.ke)</label>
                         <input type="email" class="form-control" id="email" name="email" required>
                     </div>
                     <div class="mb-3">
-                        <label for="voter_id" class="form-label">Voter ID</label>
+                        <label for="voter_id" class="form-label">
+                            {% if request.args.get('role') == 'official' %}Official{% else %}Voter{% endif %} ID
+                        </label>
                         <input type="text" class="form-control" id="voter_id" name="voter_id" required>
                     </div>
                     <div class="mb-3">
@@ -32,7 +50,14 @@
                 </form>
                 
                 <div class="text-center mt-3">
-                    <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
+                    <p>Already have an account? <a href="{{ url_for('auth.login', role=request.args.get('role', 'voter')) }}">Login here</a></p>
+                    <p class="mt-2">Or register as:
+                        <a href="{{ url_for('auth.register', role='voter') }}" class="badge bg-primary">Voter</a>
+                        {% if not request.args.get('role') == 'official' %}
+                        | <a href="{{ url_for('auth.register', role='official') }}" class="badge bg-success">Official</a>
+                        {% endif %}
+                    </p>
+                    <p class="small text-muted mt-2">Admin accounts can only be created by existing admins</p>
                 </div>
             </div>
         </div>

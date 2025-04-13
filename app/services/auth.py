@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 class AuthService:
     @staticmethod
-    def register_user(email, voter_id, password):
+    def register_user(email, voter_id, password, is_official=False):
         if not User.verify_email_domain(email):
             raise ValueError("Invalid email domain. Must be @kabarak.ac.ke")
         
@@ -16,7 +16,13 @@ class AuthService:
         if User.query.filter_by(voter_id=voter_id).first():
             raise ValueError("Voter ID already registered")
             
-        user = User(email=email, voter_id=voter_id)
+        user = User(
+            email=email, 
+            voter_id=voter_id,
+            is_official=is_official,
+            # Officials start unverified until admin approves
+            is_verified=(not is_official)
+        )
         user.set_password(password)
         db.session.add(user)
         db.session.commit()

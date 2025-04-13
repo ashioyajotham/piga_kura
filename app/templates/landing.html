@@ -13,6 +13,41 @@
         </div>
     </div>
     
+    <div class="role-section py-4 bg-light">
+        <div class="container text-center">
+            <h3 class="mb-4">Choose Your Role</h3>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Voter</h4>
+                            <p class="card-text">Cast your vote in active elections</p>
+                            <a href="{{ url_for('auth.login', role='voter') }}" class="btn btn-outline-primary">Login as Voter</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Election Official</h4>
+                            <p class="card-text">Manage elections and candidates</p>
+                            <a href="{{ url_for('auth.login', role='official') }}" class="btn btn-outline-success">Login as Official</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Administrator</h4>
+                            <p class="card-text">Manage the entire voting system</p>
+                            <a href="{{ url_for('auth.login', role='admin') }}" class="btn btn-outline-danger">Login as Admin</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <div class="features-section py-5">
         <div class="container">
             <h2 class="text-center mb-5">Key Features</h2>

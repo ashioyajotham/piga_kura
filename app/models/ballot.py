@@ -24,6 +24,12 @@ class Ballot(db.Model):
     def is_ongoing(self):
         now = datetime.utcnow()
         return self.start_date <= now <= self.end_date and self.is_active
+    
+    @property
+    def active_for_display(self):
+        """Consistent method for determining if a ballot is active for display purposes"""
+        now = datetime.utcnow()
+        return self.is_active and self.start_date <= now <= self.end_date
 
     def generate_verification_hash(self):
         """Generate a unique verification hash for the ballot"""

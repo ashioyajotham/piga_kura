@@ -4,29 +4,42 @@
 
 {% block content %}
 <div class="container">
+    <div class="alert alert-danger">
+        <i class="bi bi-shield-lock"></i> You are logged in as an <strong>Administrator</strong> with full system access
+    </div>
+    
     <h1 class="mb-4">Admin Dashboard</h1>
     
     <div class="row">
         <div class="col-md-4 mb-4">
             <div class="card text-center">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Users</h5>
+                </div>
                 <div class="card-body">
                     <h2 class="display-4">{{ user_count }}</h2>
                     <p class="lead">Registered Users</p>
-                    <a href="{{ url_for('admin.users') }}" class="btn btn-primary">Manage Users</a>
+                    <a href="{{ url_for('admin.users') }}" class="btn btn-danger">Manage Users</a>
                 </div>
             </div>
         </div>
         <div class="col-md-4 mb-4">
             <div class="card text-center">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Elections</h5>
+                </div>
                 <div class="card-body">
                     <h2 class="display-4">{{ ballots|length }}</h2>
                     <p class="lead">Total Ballots</p>
-                    <a href="{{ url_for('admin.ballots') }}" class="btn btn-primary">Manage Ballots</a>
+                    <a href="{{ url_for('admin.ballots') }}" class="btn btn-danger">Manage Ballots</a>
                 </div>
             </div>
         </div>
         <div class="col-md-4 mb-4">
             <div class="card text-center">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Votes</h5>
+                </div>
                 <div class="card-body">
                     <h2 class="display-4">{{ vote_count }}</h2>
                     <p class="lead">Total Votes</p>
@@ -36,8 +49,8 @@
     </div>
     
     <div class="card">
-        <div class="card-header">
-            Recent Ballots
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">Recent Ballots</h5>
         </div>
         <div class="card-body">
             {% if ballots %}
@@ -66,7 +79,7 @@
                             <td>{{ ballot.start_date.strftime('%Y-%m-%d %H:%M') }}</td>
                             <td>{{ ballot.end_date.strftime('%Y-%m-%d %H:%M') }}</td>
                             <td>
-                                <a href="#" class="btn btn-sm btn-primary">View</a>
+                                <a href="#" class="btn btn-sm btn-danger">View</a>
                             </td>
                         </tr>
                         {% endfor %}

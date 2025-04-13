@@ -2,6 +2,29 @@
 
 {% block title %}Vote - {{ ballot.title }}{% endblock %}
 
+{% block extra_css %}
+<style>
+.candidate-card {
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    transition: all 0.2s ease;
+}
+
+.candidate-card:hover {
+    border-color: #007bff;
+    box-shadow: 0 0 8px rgba(0,123,255,0.2);
+}
+
+.candidate-card label {
+    display: block;
+    cursor: pointer;
+    margin-bottom: 0;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="voting-container">
     <h1>{{ ballot.title }}</h1>
@@ -11,16 +34,27 @@
         <div class="candidates-list">
             {% for candidate in ballot.candidates %}
             <div class="candidate-card">
-                <input type="radio" name="candidate" value="{{ candidate.id }}" required>
-                <label>{{ candidate.name }}</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="candidate" id="candidate-{{ candidate.id }}" value="{{ candidate.id }}" required>
+                    <label class="form-check-label" for="candidate-{{ candidate.id }}">
+                        <strong>{{ candidate.name }}</strong> - {{ candidate.position }}
+                        {% if candidate.manifesto %}
+                        <p class="text-muted small mt-2">{{ candidate.manifesto }}</p>
+                        {% endif %}
+                    </label>
+                </div>
             </div>
             {% endfor %}
         </div>
-        <button type="submit" class="vote-button btn btn-primary">Cast Vote</button>
+        <button type="submit" class="vote-button btn btn-primary btn-lg">Cast Vote</button>
     </form>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<script>
+    // Set the ballot ID for use in the voting.js script
+    window.ballotId = {{ ballot.id }};
+</script>
 <script src="{{ url_for('static', filename='js/voting.js') }}"></script>
 {% endblock %}
