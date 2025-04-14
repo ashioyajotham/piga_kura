@@ -94,3 +94,65 @@ main {
     transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
+
+/* Authentication styling */
+.auth-card {
+    transition: all 0.3s;
+}
+
+.auth-card:hover {
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+/* Role-specific buttons */
+.btn-voter {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+}
+
+.btn-voter:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+    color: white;
+}
+
+.btn-official {
+    background-color: #198754;
+    border-color: #198754;
+    color: white;
+}
+
+.btn-official:hover {
+    background-color: #157347;
+    border-color: #146c43;
+    color: white;
+}
+
+.btn-admin {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.btn-admin:hover {
+    background-color: #bb2d3b;
+    border-color: #b02a37;
+    color: white;
+}
+
+/* Form focus states */
+.form-control:focus, .form-check-input:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.official-form .form-control:focus {
+    border-color: #75cea0;
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+}
+
+.admin-form .form-control:focus {
+    border-color: #ea868f;
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+}

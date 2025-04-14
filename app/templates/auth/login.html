@@ -2,57 +2,328 @@
 
 {% block title %}Login - Piga Kura{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+<style>
+    .login-container {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+    }
+    .auth-card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .auth-card .card-header {
+        padding: 1.5rem 2rem;
+        border-bottom: none;
+    }
+    .auth-card .card-body {
+        padding: 2rem;
+    }
+    .auth-tabs {
+        background-color: #f8f9fa;
+        border-radius: 50px;
+        padding: 0.5rem;
+        display: flex;
+        margin-bottom: 1.5rem;
+    }
+    .auth-tab {
+        flex: 1;
+        text-align: center;
+        padding: 0.75rem;
+        border-radius: 50px;
+        color: #6c757d;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .auth-tab.active {
+        background-color: #fff;
+        color: #212529;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    .auth-tab.voter.active {
+        color: #0d6efd;
+    }
+    .auth-tab.official.active {
+        color: #198754;
+    }
+    .auth-tab.admin.active {
+        color: #dc3545;
+    }
+    .auth-tab:hover:not(.active) {
+        background-color: rgba(255,255,255,0.5);
+    }
+    .auth-divider {
+        display: flex;
+        align-items: center;
+        margin: 1.5rem 0;
+        color: #6c757d;
+    }
+    .auth-divider::before, .auth-divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .auth-divider::before {
+        margin-right: 1rem;
+    }
+    .auth-divider::after {
+        margin-left: 1rem;
+    }
+    .social-login .btn {
+        border-radius: 50px;
+        padding: 0.5rem 1.5rem;
+        margin: 0 0.25rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .form-floating label {
+        color: #6c757d;
+    }
+    .btn-login {
+        border-radius: 50px;
+        padding: 0.75rem 2rem;
+        font-weight: bold;
+    }
+    .btn-voter {
+        background-color: #0d6efd;
+    }
+    .btn-official {
+        background-color: #198754;
+    }
+    .btn-admin {
+        background-color: #dc3545;
+    }
+    .auth-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+    .auth-role-info {
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+    .info-voter {
+        background-color: rgba(13, 110, 253, 0.1);
+        border-left: 4px solid #0d6efd;
+    }
+    .info-official {
+        background-color: rgba(25, 135, 84, 0.1);
+        border-left: 4px solid #198754;
+    }
+    .info-admin {
+        background-color: rgba(220, 53, 69, 0.1);
+        border-left: 4px solid #dc3545;
+    }
+    .role-badge {
+        font-size: 0.8rem;
+        padding: 0.35rem 0.65rem;
+        border-radius: 50px;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-5">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                {% if request.args.get('role') == 'admin' %}
-                    <h2 class="text-center mb-0">Admin Login</h2>
-                {% elif request.args.get('role') == 'official' %}
-                    <h2 class="text-center mb-0">Election Official Login</h2>
-                {% else %}
-                    <h2 class="text-center mb-0">Voter Login</h2>
-                {% endif %}
+<div class="container login-container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="text-center mb-4">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Piga Kura" height="70">
+                <h1 class="mt-3">Welcome to Piga Kura</h1>
+                <p class="text-muted">Log in to access the secure voting platform</p>
             </div>
-            <div class="card-body">
-                {% if request.args.get('role') %}
-                <div class="alert alert-info">
-                    {% if request.args.get('role') == 'admin' %}
-                        You are logging in as an <strong>Administrator</strong>. Administrators have full control over the system.
-                    {% elif request.args.get('role') == 'official' %}
-                        You are logging in as an <strong>Election Official</strong>. Officials can manage elections and candidates.
-                    {% else %}
-                        You are logging in as a <strong>Voter</strong>. Voters can participate in active elections.
-                    {% endif %}
+            
+            <div class="card auth-card">
+                <div class="card-body">
+                    <div class="auth-tabs">
+                        <div class="auth-tab voter {{ 'active' if request.args.get('role') == 'voter' or not request.args.get('role') }}" data-role="voter">
+                            <i class="bi bi-person-fill me-1"></i> Voter
+                        </div>
+                        <div class="auth-tab official {{ 'active' if request.args.get('role') == 'official' }}" data-role="official">
+                            <i class="bi bi-person-badge-fill me-1"></i> Official
+                        </div>
+                        <div class="auth-tab admin {{ 'active' if request.args.get('role') == 'admin' }}" data-role="admin">
+                            <i class="bi bi-shield-lock-fill me-1"></i> Admin
+                        </div>
+                    </div>
+                    
+                    {% set current_role = request.args.get('role', 'voter') %}
+                    
+                    <div class="auth-role-info info-{{ current_role }}">
+                        {% if current_role == 'admin' %}
+                            <div class="d-flex">
+                                <div class="me-3">
+                                    <i class="bi bi-shield-lock-fill fs-2"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">Administrator Access</h5>
+                                    <p class="mb-0">Full control over the system configuration, user management, and all election data.</p>
+                                </div>
+                            </div>
+                        {% elif current_role == 'official' %}
+                            <div class="d-flex">
+                                <div class="me-3">
+                                    <i class="bi bi-person-badge-fill fs-2"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">Election Official Access</h5>
+                                    <p class="mb-0">Create and manage elections, add candidates, and monitor voting progress.</p>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="d-flex">
+                                <div class="me-3">
+                                    <i class="bi bi-person-fill fs-2"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">Voter Access</h5>
+                                    <p class="mb-0">Participate in elections and verify your votes with secure receipts.</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <form id="loginForm" method="POST" action="{{ url_for('auth.login', role=current_role) }}">
+                        <input type="hidden" name="role" id="roleInput" value="{{ current_role }}">
+                        
+                        <div class="form-floating mb-3">
+                            <input type="email" class="form-control" id="email" name="email" placeholder="name@kabarak.ac.ke" required>
+                            <label for="email"><i class="bi bi-envelope me-2"></i>Email address</label>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+                            <label for="password"><i class="bi bi-lock me-2"></i>Password</label>
+                            <div class="form-text text-end">
+                                <a href="#" class="text-decoration-none">Forgot password?</a>
+                            </div>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="rememberMe" name="remember_me">
+                            <label class="form-check-label" for="rememberMe">
+                                Remember me for 30 days
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-login btn-{{ current_role }}">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Login as {{ current_role|title }}
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="auth-divider">or</div>
+                    
+                    <div class="social-login text-center">
+                        <a href="#" class="btn btn-outline-secondary">
+                            <i class="bi bi-google me-2"></i>Continue with Google
+                        </a>
+                        <a href="#" class="btn btn-outline-secondary">
+                            <i class="bi bi-microsoft me-2"></i>Microsoft
+                        </a>
+                    </div>
+                    
+                    <div class="auth-footer">
+                        <p class="mb-0">Don't have an account? 
+                            <a href="{{ url_for('auth.register', role=current_role) }}" class="fw-bold text-decoration-none">Register</a>
+                        </p>
+                    </div>
                 </div>
-                {% endif %}
-                
-                <form method="POST">
-                    <input type="hidden" name="role" value="{{ request.args.get('role', 'voter') }}">
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                    </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">Login</button>
-                    </div>
-                </form>
-                
-                <div class="text-center mt-3">
-                    <p>Don't have an account? <a href="{{ url_for('auth.register', role=request.args.get('role', 'voter')) }}">Register here</a></p>
-                    <p class="mt-2">Or login as: 
-                        <a href="{{ url_for('auth.login', role='voter') }}" class="badge bg-primary">Voter</a> |
-                        <a href="{{ url_for('auth.login', role='official') }}" class="badge bg-success">Official</a> |
-                        <a href="{{ url_for('auth.login', role='admin') }}" class="badge bg-danger">Admin</a>
-                    </p>
-                </div>
+            </div>
+            
+            <div class="mt-4 text-center">
+                <p class="text-muted small">By logging in, you agree to our 
+                    <a href="#" class="text-decoration-none">Terms of Service</a> and 
+                    <a href="#" class="text-decoration-none">Privacy Policy</a>.
+                </p>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tabs = document.querySelectorAll('.auth-tab');
+    const roleInput = document.getElementById('roleInput');
+    const loginForm = document.getElementById('loginForm');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Get the role from data attribute
+            const role = this.getAttribute('data-role');
+            
+            // Update the active tab
+            tabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Update the hidden role input
+            roleInput.value = role;
+            
+            // Update form action URL
+            loginForm.action = "{{ url_for('auth.login') }}?role=" + role;
+            
+            // Update the button class and text
+            const submitBtn = document.querySelector('.btn-login');
+            submitBtn.classList.remove('btn-voter', 'btn-official', 'btn-admin');
+            submitBtn.classList.add('btn-' + role);
+            submitBtn.innerHTML = `<i class="bi bi-box-arrow-in-right me-2"></i>Login as ${role.charAt(0).toUpperCase() + role.slice(1)}`;
+            
+            // Update role info box
+            const infoBoxes = document.querySelectorAll('.auth-role-info');
+            infoBoxes.forEach(box => {
+                box.classList.remove('info-voter', 'info-official', 'info-admin');
+                box.classList.add('info-' + role);
+            });
+            
+            // Update the role info content
+            const infoBox = document.querySelector('.auth-role-info');
+            let infoContent = '';
+            
+            if(role === 'admin') {
+                infoContent = `
+                <div class="d-flex">
+                    <div class="me-3">
+                        <i class="bi bi-shield-lock-fill fs-2"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-1">Administrator Access</h5>
+                        <p class="mb-0">Full control over the system configuration, user management, and all election data.</p>
+                    </div>
+                </div>`;
+            } else if(role === 'official') {
+                infoContent = `
+                <div class="d-flex">
+                    <div class="me-3">
+                        <i class="bi bi-person-badge-fill fs-2"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-1">Election Official Access</h5>
+                        <p class="mb-0">Create and manage elections, add candidates, and monitor voting progress.</p>
+                    </div>
+                </div>`;
+            } else {
+                infoContent = `
+                <div class="d-flex">
+                    <div class="me-3">
+                        <i class="bi bi-person-fill fs-2"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-1">Voter Access</h5>
+                        <p class="mb-0">Participate in elections and verify your votes with secure receipts.</p>
+                    </div>
+                </div>`;
+            }
+            
+            infoBox.innerHTML = infoContent;
+        });
+    });
+});
+</script>
 {% endblock %}
