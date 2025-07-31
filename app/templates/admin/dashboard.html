@@ -79,7 +79,7 @@
                             <td>{{ ballot.start_date.strftime('%Y-%m-%d %H:%M') }}</td>
                             <td>{{ ballot.end_date.strftime('%Y-%m-%d %H:%M') }}</td>
                             <td>
-                                <a href="#" class="btn btn-sm btn-danger">View</a>
+                                <button class="btn btn-sm btn-danger" onclick="viewBallotDetails({{ ballot.id }})">View Details</button>
                             </td>
                         </tr>
                         {% endfor %}
@@ -92,4 +92,337 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function viewBallotDetails(ballotId) {
+    // Fetch ballot details and show in modal
+    fetch(`/admin/api/ballots/${ballotId}`)
+        .then(response => response.json())
+        .then(ballot => {
+            const modalHtml = `
+                <div class="modal fade" id="ballotDetailsModal" tabindex="-1">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="bi bi-bar-chart me-2"></i>Election Analytics: ${ballot.title}
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <!-- Chart Filter Controls -->
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Chart Type:</label>
+                                        <select class="form-select" id="chartTypeSelector" onchange="updateCharts(${ballotId})">
+                                            <option value="bar">Bar Chart</option>
+                                            <option value="pie">Pie Chart</option>
+                                            <option value="doughnut">Doughnut Chart</option>
+                                            <option value="line">Trend Line</option>
+                                            <option value="radar">Radar Chart</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Data View:</label>
+                                        <select class="form-select" id="dataViewSelector" onchange="updateCharts(${ballotId})">
+                                            <option value="votes">Vote Count</option>
+                                            <option value="percentage">Percentage</option>
+                                            <option value="comparison">Side-by-Side</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Basic Info Cards -->
+                                <div class="row mb-4">
+                                    <div class="col-md-4">
+                                        <div class="card text-center">
+                                            <div class="card-body">
+                                                <h3 class="text-primary">${ballot.vote_count}</h3>
+                                                <p class="mb-0">Total Votes</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card text-center">
+                                            <div class="card-body">
+                                                <h3 class="text-success">${ballot.candidates?.length || 0}</h3>
+                                                <p class="mb-0">Candidates</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card text-center">
+                                            <div class="card-body">
+                                                <h3 class="text-info">${ballot.ballot_type}</h3>
+                                                <p class="mb-0">Election Type</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Chart Canvas -->
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h6 class="mb-0">Election Results Visualization</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <canvas id="electionChart" width="400" height="300"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h6 class="mb-0">Quick Stats</h6>
+                                            </div>
+                                            <div class="card-body" id="quickStats">
+                                                <!-- Stats loaded dynamically -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Detailed Results Table -->
+                                <div class="row mt-4">
+                                    <div class="col-12">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h6 class="mb-0">Detailed Results</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="table-responsive">
+                                                    <table class="table table-striped">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Rank</th>
+                                                                <th>Candidate</th>
+                                                                <th>Position</th>
+                                                                <th>Votes</th>
+                                                                <th>Percentage</th>
+                                                                <th>Status</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="resultsTableBody">
+                                                            <!-- Results loaded dynamically -->
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-success" onclick="exportChartData(${ballotId})">
+                                    <i class="bi bi-download me-1"></i>Export Data
+                                </button>
+                                <a href="{{ url_for('admin.ballots') }}" class="btn btn-primary">
+                                    <i class="bi bi-gear me-1"></i>Manage This Ballot
+                                </a>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Remove existing modal if any
+            const existingModal = document.getElementById('ballotDetailsModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // Add new modal
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            const modal = new bootstrap.Modal(document.getElementById('ballotDetailsModal'));
+            modal.show();
+            
+            // Load chart data after modal is shown
+            modal._element.addEventListener('shown.bs.modal', function() {
+                loadElectionCharts(ballotId);
+            });
+            
+            // Clean up when hidden
+            document.getElementById('ballotDetailsModal').addEventListener('hidden.bs.modal', function() {
+                this.remove();
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error loading ballot details');
+        });
+}
+
+let currentChart = null;
+
+function loadElectionCharts(ballotId) {
+    // Fetch detailed results for visualization
+    fetch(`/admin/api/ballots/${ballotId}/results`)
+        .then(response => response.json())
+        .then(data => {
+            createChart(data);
+            updateQuickStats(data);
+            updateResultsTable(data);
+        })
+        .catch(error => {
+            console.error('Error loading chart data:', error);
+        });
+}
+
+function createChart(data) {
+    const ctx = document.getElementById('electionChart').getContext('2d');
+    const chartType = document.getElementById('chartTypeSelector').value;
+    const dataView = document.getElementById('dataViewSelector').value;
+    
+    // Destroy existing chart
+    if (currentChart) {
+        currentChart.destroy();
+    }
+    
+    // Prepare data
+    const labels = data.candidates.map(c => c.name);
+    const values = dataView === 'percentage' 
+        ? data.candidates.map(c => c.percentage) 
+        : data.candidates.map(c => c.votes);
+    
+    // Color palette
+    const colors = [
+        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+        '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+    ];
+    
+    const chartConfig = {
+        type: chartType,
+        data: {
+            labels: labels,
+            datasets: [{
+                label: dataView === 'percentage' ? 'Vote Percentage' : 'Vote Count',
+                data: values,
+                backgroundColor: colors.slice(0, labels.length),
+                borderColor: colors.slice(0, labels.length).map(color => color + 'CC'),
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Election Results',
+                    font: {
+                        size: 16,
+                        weight: 'bold'
+                    }
+                },
+                legend: {
+                    position: chartType === 'line' ? 'top' : 'right'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const candidate = data.candidates[context.dataIndex];
+                            return `${candidate.name}: ${candidate.votes} votes (${candidate.percentage}%)`;
+                        }
+                    }
+                }
+            },
+            scales: chartType === 'bar' || chartType === 'line' ? {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: dataView === 'percentage' ? 'Percentage (%)' : 'Number of Votes'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Candidates'
+                    }
+                }
+            } : {}
+        }
+    };
+    
+    currentChart = new Chart(ctx, chartConfig);
+}
+
+function updateQuickStats(data) {
+    const statsContainer = document.getElementById('quickStats');
+    const sortedCandidates = [...data.candidates].sort((a, b) => b.votes - a.votes);
+    const winner = sortedCandidates[0];
+    const totalVotes = data.total_votes;
+    const avgVotesPerCandidate = totalVotes / data.candidates.length;
+    
+    statsContainer.innerHTML = `
+        <div class="mb-3">
+            <h6 class="text-success">🏆 Leading</h6>
+            <p class="mb-1"><strong>${winner?.name || 'N/A'}</strong></p>
+            <small class="text-muted">${winner?.votes || 0} votes (${winner?.percentage || 0}%)</small>
+        </div>
+        <div class="mb-3">
+            <h6 class="text-primary">📊 Turnout</h6>
+            <p class="mb-1"><strong>${totalVotes}</strong> total votes</p>
+            <small class="text-muted">Avg: ${avgVotesPerCandidate.toFixed(1)} per candidate</small>
+        </div>
+        <div class="mb-3">
+            <h6 class="text-warning">📈 Competition</h6>
+            <p class="mb-1">Margin: <strong>${winner && sortedCandidates[1] ? (winner.votes - sortedCandidates[1].votes) : 0}</strong> votes</p>
+            <small class="text-muted">${sortedCandidates.length} candidates</small>
+        </div>
+    `;
+}
+
+function updateResultsTable(data) {
+    const tableBody = document.getElementById('resultsTableBody');
+    const sortedCandidates = [...data.candidates].sort((a, b) => b.votes - a.votes);
+    
+    tableBody.innerHTML = sortedCandidates.map((candidate, index) => {
+        const rank = index + 1;
+        const statusBadge = rank === 1 ? 
+            '<span class="badge bg-success">Winner</span>' : 
+            rank <= 3 ? '<span class="badge bg-warning">Top 3</span>' : 
+            '<span class="badge bg-secondary">Participant</span>';
+        
+        return `
+            <tr>
+                <td><strong>${rank}</strong></td>
+                <td>${candidate.name}</td>
+                <td>${candidate.position}</td>
+                <td><strong>${candidate.votes}</strong></td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="progress flex-grow-1 me-2" style="height: 20px;">
+                            <div class="progress-bar" style="width: ${candidate.percentage}%"></div>
+                        </div>
+                        <span>${candidate.percentage}%</span>
+                    </div>
+                </td>
+                <td>${statusBadge}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function updateCharts(ballotId) {
+    loadElectionCharts(ballotId);
+}
+
+function exportChartData(ballotId) {
+    // Export chart as image and data as CSV
+    const canvas = document.getElementById('electionChart');
+    const link = document.createElement('a');
+    link.download = `election_chart_${ballotId}.png`;
+    link.href = canvas.toDataURL();
+    link.click();
+    
+    // Also trigger CSV export
+    window.open(`/admin/api/ballots/${ballotId}/export`, '_blank');
+}
+</script>
 {% endblock %}

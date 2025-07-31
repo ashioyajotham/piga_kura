@@ -289,7 +289,7 @@ def get_ballot_results(ballot_id):
     ballot = Ballot.query.get_or_404(ballot_id)
     
     results = []
-    total_votes = Vote.query.filter_by(ballot_id=ballot_id).count()  # Direct query instead of ballot.vote_count
+    total_votes = Vote.query.filter_by(ballot_id=ballot_id).count()
     
     for candidate in ballot.candidates:
         vote_count = Vote.query.filter_by(candidate_id=candidate.id).count()
@@ -303,10 +303,54 @@ def get_ballot_results(ballot_id):
             'percentage': round(percentage, 2)
         })
     
+    # Sort by votes descending
+    results.sort(key=lambda x: x['votes'], reverse=True)
+    
     return jsonify({
         'total_votes': total_votes,
-        'candidates': results
+        'candidates': results,
+        'ballot_info': {
+            'title': ballot.title,
+            'type': ballot.ballot_type,
+            'start_date': ballot.start_date.isoformat(),
+            'end_date': ballot.end_date.isoformat(),
+            'is_active': ballot.is_active
+        }
     })
+
+@admin_bp.route('/api/ballots/<int:ballot_id>/analytics')
+@login_required
+@admin_required
+def get_ballot_analytics(ballot_id):
+    """Get detailed analytics for a ballot"""
+    from sqlalchemy import func
+    from datetime import datetime, timedelta
+    
+    ballot = Ballot.query.get_or_404(ballot_id)
+    
+    # Vote trend over time (if you want to add timestamps to votes)
+    vote_trend = db.session.query(
+        func.date(Vote.created_at).label('date'),
+        func.count(Vote.id).label('count')
+    ).filter_by(ballot_id=ballot_id).group_by(
+        func.date(Vote.created_at)
+    ).all()
+    
+    # Voter demographics (if you have user profiles)
+    # This would depend on your User model structure
+    
+    analytics_data = {
+        'vote_trend': [{'date': str(v.date), 'votes': v.count} for v in vote_trend],
+        'total_votes': len(ballot.votes) if hasattr(ballot, 'votes') else 0,
+        'candidates_count': len(ballot.candidates),
+        'voter_turnout': {
+            'percentage': 75.5,  # Calculate based on eligible voters
+            'total_eligible': 1000,  # From your user base
+            'votes_cast': len(ballot.votes) if hasattr(ballot, 'votes') else 0
+        }
+    }
+    
+    return jsonify(analytics_data)
 
 @admin_bp.route('/api/ballots/<int:ballot_id>/candidates')
 @login_required
