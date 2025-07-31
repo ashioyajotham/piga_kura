@@ -226,7 +226,7 @@
                         </div>
                         
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-{{ current_role == 'official' ? 'success' : 'primary' }} btn-register">
+                            <button type="submit" class="btn btn-{{ 'success' if current_role == 'official' else 'primary' }} btn-register">
                                 <i class="bi bi-person-plus me-2"></i>Register as {{ current_role|title }}
                             </button>
                         </div>

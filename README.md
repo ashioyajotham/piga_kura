@@ -30,6 +30,7 @@ graph TD
 ```
 
 ## Features
+
 - Secure voter authentication and verification
 - Role-based access control with distinct interfaces for:
   - Voters (participate in elections)
@@ -43,12 +44,14 @@ graph TD
 - Comprehensive audit logging for transparency
 
 ## Tech Stack
+
 - Backend: Flask/Python
 - Database: SQLAlchemy
 - Frontend: Bootstrap, JavaScript
 - Security: JWT, Flask-Login, Bcrypt
 
 ## Getting Started
+
 1. Clone repository
 2. Create virtual environment: `python -m venv venv`
 3. Activate the environment:
@@ -57,18 +60,29 @@ graph TD
 4. Install dependencies: `pip install -r requirements.txt`
 5. Generate encryption key: `python generate_keys.py`
 6. Set environment variables in `.env` file:
-   ```
+
+   ```env
+
+FLASK_APP=run.py
+FLASK_ENV=development
+SECRET_KEY=your_secret_key
+VOTE_ENCRYPTION_KEY=generated_key_from_step_5
+DATABASE_URL=sqlite:///voting.db
+
+   ``` env
    FLASK_APP=run.py
    FLASK_ENV=development
    SECRET_KEY=your_secret_key
    VOTE_ENCRYPTION_KEY=generated_key_from_step_5
    DATABASE_URL=sqlite:///voting.db
    ```
-7. Initialize database: `flask db upgrade`
-8. Create admin user: `flask create-admin`
-9. Run application: `flask run`
+
+7.Initialize database: `flask db upgrade`
+8.Create admin user: `flask create-admin`
+9.Run application: `flask run`
 
 ## Security Features
+
 - End-to-end encryption of votes using Fernet symmetric encryption
 - Role-based access control (voter, official, admin) with visually distinct UIs
 - Domain-restricted registration (example: kabarak.ac.ke)
@@ -80,6 +94,7 @@ graph TD
 ## User Roles
 
 ### Voters
+
 - Register with institutional email
 - View and participate in active elections
 - Receive encrypted vote receipts
@@ -87,6 +102,7 @@ graph TD
 - View personal voting history
 
 ### Election Officials
+
 - Create new elections with custom positions
 - Add and manage candidates
 - Monitor ongoing elections
@@ -94,6 +110,7 @@ graph TD
 - Set election parameters (start/end dates, verification methods)
 
 ### Administrators
+
 - Manage user accounts and permissions
 - Monitor system activity through audit logs
 - Access complete election data
@@ -101,7 +118,13 @@ graph TD
 
 ## Project Structure
 
-```
+FLASK_APP=run.py
+FLASK_ENV=development
+SECRET_KEY=your_secret_key
+VOTE_ENCRYPTION_KEY=generated_key_from_step_5
+DATABASE_URL=sqlite:///voting.db
+
+``` plaintext
 piga_kura/
 ├── app/
 │   ├── api/              # API endpoints for AJAX functionality
@@ -129,6 +152,7 @@ piga_kura/
 ├── generate_keys.py      # Script to generate encryption keys
 ├── requirements.txt      # Project dependencies
 └── run.py                # Application entry point
+
 ```
 
 ## Database Schema
@@ -202,6 +226,7 @@ erDiagram
 ## Deployment
 
 For production deployment, we recommend:
+
 - Using a production WSGI server like Gunicorn
 - Setting up behind Nginx as a reverse proxy
 - Using PostgreSQL instead of SQLite
