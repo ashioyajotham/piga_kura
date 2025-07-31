@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import current_user, login_required
 from app.models.ballot import Ballot
 from app.models.vote import Vote
+from app.models.user import User
 from datetime import datetime
 
 main_bp = Blueprint('main', __name__)
@@ -9,17 +10,24 @@ main_bp = Blueprint('main', __name__)
 @main_bp.route('/')
 def index():
     if current_user.is_authenticated:
-        # Use the same query logic as the active_ballots route
-        active_ballots_count = Ballot.query.filter(
-            Ballot.is_active == True,
-            Ballot.start_date <= datetime.utcnow(),
-            Ballot.end_date >= datetime.utcnow()
-        ).count()
+        user_role = 'admin' if current_user.is_admin else 'official' if current_user.is_official else 'voter'
+        active_ballots_count = Ballot.query.filter_by(is_active=True).count()
+        
+        # Add admin-specific data
+        if current_user.is_admin:
+            user_count = User.query.count()
+            vote_count = Vote.query.count()
+            return render_template('index.html', 
+                                 user_role=user_role, 
+                                 active_ballots_count=active_ballots_count,
+                                 user_count=user_count,
+                                 vote_count=vote_count)
         
         return render_template('index.html', 
-                              active_ballots_count=active_ballots_count,
-                              user_role=get_user_role())
-    return render_template('landing.html')
+                             user_role=user_role, 
+                             active_ballots_count=active_ballots_count)
+    else:
+        return render_template('landing.html')
 
 def get_user_role():
     """Helper function to determine user role for UI customization"""
