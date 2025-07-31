@@ -413,28 +413,20 @@ All APIs return JSON responses and require appropriate authentication and author
 ## Screenshots
 
 ### Admin Dashboard with Analytics
-![Admin Dashboard showing interactive charts and election statistics]
+![Admin Dashboard showing interactive charts and election statistics](/images/dashboard.jpeg)
 
 ### User Management Interface  
-![Comprehensive user management with role controls and verification]
+![Comprehensive user management with role controls and verification](/images/user_management.jpeg)
 
-### Ballot Management with Visualizations
-![Ballot administration with real-time result charts and candidate management]
+### Ballot Management
+![Ballot administration and candidate management](/images/ballot.jpeg)
 
 ### Voter Interface
-![Clean, intuitive voting interface with election details and candidate information]
+![Clean, intuitive voting interface with election details and candidate information](/images/voter_dashboard.jpeg)
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-Please ensure your code follows the existing style and includes appropriate tests.
+Contributions are welcome! Please feel free to submit a Pull Request. Check the [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## Changelog
 
