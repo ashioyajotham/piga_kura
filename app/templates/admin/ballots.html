@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Ballots - Admin Panel{% endblock %}
+
+{% block extra_css %}
+<style>
+    .action-btn {
+        margin: 0 2px;
+        min-width: 35px;
+    }
+    .ballot-actions {
+        white-space: nowrap;
+    }
+    .status-toggle {
+        cursor: pointer;
+    }
+    .result-chart {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="alert alert-danger">
+        <i class="bi bi-shield-lock"></i> You are logged in as an <strong>Administrator</strong> with full system access
+    </div>
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Ballot Management</h1>
+        <div>
+            <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#createBallotModal">
+                <i class="bi bi-plus-circle me-2"></i>Create Ballot
+            </button>
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">All Ballots ({{ ballots|length }})</h5>
+        </div>
+        <div class="card-body">
+            {% if ballots %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Candidates</th>
+                            <th>Votes</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ballot in ballots %}
+                        <tr id="ballot-row-{{ ballot.id }}">
+                            <td>{{ ballot.id }}</td>
+                            <td>
+                                <div>
+                                    <strong>{{ ballot.title }}</strong>
+                                    {% if ballot.description %}
+                                    <br><small class="text-muted">{{ ballot.description[:50] }}{% if ballot.description|length > 50 %}...{% endif %}</small>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td><span class="badge bg-info">{{ ballot.ballot_type|title }}</span></td>
+                            <td>
+                                <span class="badge {{ 'bg-success' if ballot.is_ongoing else 'bg-secondary' }} status-toggle" 
+                                      data-ballot-id="{{ ballot.id }}" 
+                                      data-active="{{ ballot.is_active|lower }}"
+                                      title="Click to toggle ballot status">
+                                    {{ 'Active' if ballot.is_ongoing else 'Inactive' }}
+                                </span>
+                            </td>
+                            <td>{{ ballot.start_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ ballot.end_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ ballot.candidates|length }} candidates</td>
+                            <td>{{ ballot.vote_count }} votes</td>
+                            <td class="text-center ballot-actions">
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary action-btn" 
+                                            onclick="editBallot({{ ballot.id }})" 
+                                            title="Edit Ballot">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-outline-info action-btn" 
+                                            onclick="viewResults({{ ballot.id }})" 
+                                            title="View Results">
+                                        <i class="bi bi-bar-chart"></i>
+                                    </button>
+                                    <button class="btn btn-outline-warning action-btn" 
+                                            onclick="manageCandidates({{ ballot.id }})" 
+                                            title="Manage Candidates">
+                                        <i class="bi bi-people"></i>
+                                    </button>
+                                    <button class="btn btn-outline-success action-btn" 
+                                            onclick="viewBallot({{ ballot.id }})" 
+                                            title="Preview Ballot">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <div class="dropdown d-inline">
+                                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" 
+                                                type="button" 
+                                                data-bs-toggle="dropdown">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" onclick="duplicateBallot({{ ballot.id }})">
+                                                <i class="bi bi-copy me-2"></i>Duplicate
+                                            </a></li>
+                                            <li><a class="dropdown-item" onclick="exportResults({{ ballot.id }})">
+                                                <i class="bi bi-download me-2"></i>Export Results
+                                            </a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item text-danger" onclick="deleteBallot({{ ballot.id }}, '{{ ballot.title }}')">
+                                                <i class="bi bi-trash me-2"></i>Delete
+                                            </a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="bi bi-inbox" style="font-size: 3rem; color: #dee2e6;"></i>
+                <h5 class="mt-3 text-muted">No ballots created yet</h5>
+                <p class="text-muted">Get started by creating your first ballot</p>
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createBallotModal">
+                    <i class="bi bi-plus-circle me-2"></i>Create First Ballot
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Create Ballot Modal -->
+<div class="modal fade" id="createBallotModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Ballot</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="createBallotForm">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Title</label>
+                            <input type="text" class="form-control" id="createBallotTitle" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Ballot Type</label>
+                            <select class="form-select" id="createBallotType" required>
+                                <option value="">Select Type</option>
+                                <option value="national">National</option>
+                                <option value="county">County</option>
+                                <option value="institutional">Institutional</option>
+                                <option value="special">Special</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" id="createBallotDescription" rows="3"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Start Date</label>
+                            <input type="datetime-local" class="form-control" id="createBallotStartDate" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">End Date</label>
+                            <input type="datetime-local" class="form-control" id="createBallotEndDate" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Minimum Voters</label>
+                            <input type="number" class="form-control" id="createBallotMinVoters" value="0" min="0">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Maximum Voters (Optional)</label>
+                            <input type="number" class="form-control" id="createBallotMaxVoters" min="1">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="createBallotRequiresVerification" checked>
+                                <label class="form-check-label" for="createBallotRequiresVerification">
+                                    Requires Verification
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="createBallotIsActive" checked>
+                                <label class="form-check-label" for="createBallotIsActive">
+                                    Active Ballot
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Create Ballot</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Ballot Modal -->
+<div class="modal fade" id="editBallotModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Ballot</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editBallotForm">
+                <div class="modal-body">
+                    <input type="hidden" id="editBallotId">
+                    <!-- Same form fields as create, with edit prefix -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Title</label>
+                            <input type="text" class="form-control" id="editBallotTitle" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Ballot Type</label>
+                            <select class="form-select" id="editBallotType" required>
+                                <option value="national">National</option>
+                                <option value="county">County</option>
+                                <option value="institutional">Institutional</option>
+                                <option value="special">Special</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" id="editBallotDescription" rows="3"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Start Date</label>
+                            <input type="datetime-local" class="form-control" id="editBallotStartDate" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">End Date</label>
+                            <input type="datetime-local" class="form-control" id="editBallotEndDate" required>
+                        </div>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="editBallotIsActive">
+                        <label class="form-check-label" for="editBallotIsActive">
+                            Active Ballot
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- View Results Modal -->
+<div class="modal fade" id="resultsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Election Results</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="resultsContent">
+                <!-- Content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Manage Candidates Modal -->
+<div class="modal fade" id="candidatesModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Manage Candidates</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="candidatesContent">
+                <!-- Content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/admin-ballots.js') }}"></script>
+{% endblock %}
